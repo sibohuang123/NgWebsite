@@ -1,26 +1,103 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --purple-primary: #9333ea;
+  --purple-light: #c084fc;
+  --purple-dark: #7e22ce;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --purple-primary: #a855f7;
+  --purple-light: #c084fc;
+  --purple-dark: #6b21a8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-purple-400 dark:bg-purple-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-purple-500 dark:bg-purple-500;
+}
+
+/* LaTeX styles */
+.katex {
+  font-size: 1.1em;
+}
+
+/* Markdown styles */
+.markdown-content h1 {
+  @apply text-3xl font-bold mt-8 mb-4 font-serif;
+}
+
+.markdown-content h2 {
+  @apply text-2xl font-bold mt-6 mb-3 font-serif;
+}
+
+.markdown-content h3 {
+  @apply text-xl font-semibold mt-4 mb-2;
+}
+
+.markdown-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.markdown-content ul {
+  @apply list-disc list-inside mb-4 ml-4;
+}
+
+.markdown-content ol {
+  @apply list-decimal list-inside mb-4 ml-4;
+}
+
+.markdown-content a {
+  @apply text-purple-600 dark:text-purple-400 hover:underline;
+}
+
+.markdown-content code {
+  @apply bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm;
+}
+
+.markdown-content pre {
+  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-purple-500 pl-4 italic my-4;
+}
+
+.markdown-content img {
+  @apply max-w-full h-auto rounded-lg my-4;
+}
+
+.markdown-content video {
+  @apply max-w-full h-auto rounded-lg my-4;
 }
