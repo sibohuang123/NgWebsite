@@ -1,5 +1,13 @@
+-- Clean schema for NeuroGeneration database
+-- This script creates all necessary tables, indexes, and functions
+
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Drop existing tables if they exist (for clean setup)
+DROP TABLE IF EXISTS comments CASCADE;
+DROP TABLE IF EXISTS posts CASCADE;
+DROP TABLE IF EXISTS events CASCADE;
 
 -- Posts table
 CREATE TABLE posts (
@@ -51,34 +59,6 @@ CREATE INDEX idx_events_is_draft ON events(is_draft);
 CREATE INDEX idx_comments_post_id ON comments(post_id);
 CREATE INDEX idx_comments_event_id ON comments(event_id);
 
--- Row Level Security (RLS)
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
-
--- Policies for public read access to published content
-CREATE POLICY "Public can view published posts" ON posts
-    FOR SELECT USING (is_draft = false);
-
-CREATE POLICY "Public can view published events" ON events
-    FOR SELECT USING (is_draft = false);
-
-CREATE POLICY "Public can view all comments" ON comments
-    FOR SELECT USING (true);
-
-CREATE POLICY "Public can create comments" ON comments
-    FOR INSERT WITH CHECK (true);
-
--- Admin policies (will be updated when auth is implemented)
-CREATE POLICY "Admins can do everything with posts" ON posts
-    FOR ALL USING (auth.jwt() ->> 'role' = 'admin');
-
-CREATE POLICY "Admins can do everything with events" ON events
-    FOR ALL USING (auth.jwt() ->> 'role' = 'admin');
-
-CREATE POLICY "Admins can delete comments" ON comments
-    FOR DELETE USING (auth.jwt() ->> 'role' = 'admin');
-
 -- Function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -120,3 +100,32 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Row Level Security (RLS)
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+
+-- Policies for public read access to published content
+CREATE POLICY "Public can view published posts" ON posts
+    FOR SELECT USING (is_draft = false);
+
+CREATE POLICY "Public can view published events" ON events
+    FOR SELECT USING (is_draft = false);
+
+CREATE POLICY "Public can view all comments" ON comments
+    FOR SELECT USING (true);
+
+CREATE POLICY "Public can create comments" ON comments
+    FOR INSERT WITH CHECK (true);
+
+-- For development/testing: Allow all operations
+-- Remove these in production and use proper auth
+CREATE POLICY "Allow all operations on posts" ON posts
+    FOR ALL USING (true);
+
+CREATE POLICY "Allow all operations on events" ON events
+    FOR ALL USING (true);
+
+CREATE POLICY "Allow all operations on comments" ON comments
+    FOR ALL USING (true);

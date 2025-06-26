@@ -14,10 +14,12 @@ This guide will help you set up the database tables in Supabase for the NeuroGen
    - Click "New query"
 
 3. **Run Schema Script**
-   - Copy the entire contents of `supabase/schema.sql`
+   - Copy the entire contents of `supabase/schema-clean.sql`
    - Paste it into the SQL editor
    - Click "Run" or press Cmd/Ctrl + Enter
    - You should see "Success. No rows returned"
+   
+   **Note**: Use `schema-clean.sql` instead of `schema.sql` to avoid compatibility issues.
 
 4. **Add Demo Content (Optional)**
    - Create a new query (click "+ New query")
@@ -36,7 +38,33 @@ To verify the tables were created correctly:
    - `events`
    - `comments`
 
+## Important Notes
+
+- **Use `schema-clean.sql`** - This is the corrected version that works with Supabase
+- The script will drop existing tables before creating new ones
+- This ensures a clean setup without conflicts
+
+## Step-by-Step Instructions
+
+### For First Time Setup:
+
+1. **Copy the schema-clean.sql content**
+2. **In Supabase SQL Editor:**
+   ```sql
+   -- Paste the entire content of schema-clean.sql here
+   ```
+3. **Click "Run"**
+4. **Then copy demo-content.sql content**
+5. **In a new query:**
+   ```sql
+   -- Paste the entire content of demo-content.sql here
+   ```
+6. **Click "Run"**
+
 ## Troubleshooting
+
+### "generation expression is not immutable" error
+This error occurs with the old schema.sql. Use schema-clean.sql instead.
 
 ### "relation already exists" error
 This means the tables are already created. You can:

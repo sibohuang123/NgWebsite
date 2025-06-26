@@ -102,7 +102,7 @@ export default function PostsPage() {
                   <ol className="list-decimal list-inside space-y-1">
                     <li>Go to your Supabase project dashboard</li>
                     <li>Navigate to the SQL Editor</li>
-                    <li>Copy and run the contents of <code className="bg-red-100 dark:bg-red-900/50 px-1 rounded">supabase/schema.sql</code></li>
+                    <li>Copy and run the contents of <code className="bg-red-100 dark:bg-red-900/50 px-1 rounded">supabase/schema-clean.sql</code></li>
                     <li>Optionally run <code className="bg-red-100 dark:bg-red-900/50 px-1 rounded">supabase/demo-content.sql</code> for demo data</li>
                   </ol>
                 </div>
