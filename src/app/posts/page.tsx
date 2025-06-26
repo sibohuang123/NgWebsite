@@ -19,12 +19,43 @@ export default function PostsPage() {
   }, [])
 
   useEffect(() => {
-    const filtered = posts.filter(post => 
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (post.tag && post.tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
-    setFilteredPosts(filtered)
+    const query = searchQuery.trim().toLowerCase()
+    
+    if (!query) {
+      setFilteredPosts(posts)
+      return
+    }
+
+    // Check if query has @ attribute
+    if (query.startsWith('@')) {
+      const parts = query.split(' ')
+      const attribute = parts[0].substring(1) // Remove @
+      const searchTerm = parts.slice(1).join(' ')
+      
+      if (!searchTerm) {
+        setFilteredPosts(posts)
+        return
+      }
+
+      const filtered = posts.filter(post => {
+        switch (attribute) {
+          case 'tag':
+          case 'tags':
+            return post.tag && post.tag.toLowerCase().includes(searchTerm)
+          case 'content':
+            return post.content.toLowerCase().includes(searchTerm)
+          default:
+            return false
+        }
+      })
+      setFilteredPosts(filtered)
+    } else {
+      // Default: search by title only
+      const filtered = posts.filter(post => 
+        post.title.toLowerCase().includes(query)
+      )
+      setFilteredPosts(filtered)
+    }
   }, [searchQuery, posts])
 
   async function fetchPosts() {
@@ -41,9 +72,9 @@ export default function PostsPage() {
       }
       setPosts(data || [])
       setFilteredPosts(data || [])
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching posts:', error)
-      if (error.code === '42P01') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === '42P01') {
         setError('Database tables not found. Please run the database setup script in Supabase.')
       } else {
         setError('Failed to load posts. Please try again later.')
@@ -84,7 +115,7 @@ export default function PostsPage() {
               <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search posts by title, content, or tag..."
+                placeholder="Search by title or use @tag, @content..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400"

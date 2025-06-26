@@ -12,7 +12,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // Simple admin authentication - in production, use proper authentication
-const ADMIN_PASSWORD = 'ng-admin-2024' // Change this to a secure password
+const DEFAULT_PASSWORD = 'ng-admin-2024' // Default password
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false)
@@ -26,10 +26,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const getAdminPassword = (): string => {
+    // Check if a custom password has been set
+    const customPasswordHash = localStorage.getItem('adminPasswordHash')
+    if (customPasswordHash) {
+      // Decode the simple base64 encoding (in production, use proper hashing)
+      try {
+        return atob(customPasswordHash)
+      } catch {
+        return DEFAULT_PASSWORD
+      }
+    }
+    return DEFAULT_PASSWORD
+  }
+
   const login = (password: string): boolean => {
-    if (password === ADMIN_PASSWORD) {
+    const currentPassword = getAdminPassword()
+    if (password === currentPassword) {
       setIsAdmin(true)
       localStorage.setItem('isAdmin', 'true')
+      // Store password in session for password change feature
+      sessionStorage.setItem('adminPassword', password)
       return true
     }
     return false
@@ -38,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setIsAdmin(false)
     localStorage.removeItem('isAdmin')
+    sessionStorage.removeItem('adminPassword')
     router.push('/')
   }
 

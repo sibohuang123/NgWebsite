@@ -19,12 +19,43 @@ export default function EventsPage() {
   }, [])
 
   useEffect(() => {
-    const filtered = events.filter(event => 
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (event.tag && event.tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
-    setFilteredEvents(filtered)
+    const query = searchQuery.trim().toLowerCase()
+    
+    if (!query) {
+      setFilteredEvents(events)
+      return
+    }
+
+    // Check if query has @ attribute
+    if (query.startsWith('@')) {
+      const parts = query.split(' ')
+      const attribute = parts[0].substring(1) // Remove @
+      const searchTerm = parts.slice(1).join(' ')
+      
+      if (!searchTerm) {
+        setFilteredEvents(events)
+        return
+      }
+
+      const filtered = events.filter(event => {
+        switch (attribute) {
+          case 'tag':
+          case 'tags':
+            return event.tag && event.tag.toLowerCase().includes(searchTerm)
+          case 'content':
+            return event.content.toLowerCase().includes(searchTerm)
+          default:
+            return false
+        }
+      })
+      setFilteredEvents(filtered)
+    } else {
+      // Default: search by title only
+      const filtered = events.filter(event => 
+        event.title.toLowerCase().includes(query)
+      )
+      setFilteredEvents(filtered)
+    }
   }, [searchQuery, events])
 
   async function fetchEvents() {
@@ -41,9 +72,9 @@ export default function EventsPage() {
       }
       setEvents(data || [])
       setFilteredEvents(data || [])
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching events:', error)
-      if (error.code === '42P01') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === '42P01') {
         setError('Database tables not found. Please run the database setup script in Supabase.')
       } else {
         setError('Failed to load events. Please try again later.')
@@ -112,7 +143,7 @@ export default function EventsPage() {
               <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search events by title, content, or tag..."
+                placeholder="Search by title or use @tag, @content..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400"
@@ -160,16 +191,17 @@ export default function EventsPage() {
                   transition={{ delay: index * 0.1 }}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden relative"
                 >
-                  {isUpcoming(event.start_date) && (
-                    <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold z-10">
-                      Upcoming
-                    </div>
-                  )}
-                  
                   <Link href={`/events/${event.id}`} className="block p-6">
-                    <h2 className="text-xl font-serif font-bold mb-3 text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                      {event.title}
-                    </h2>
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <h2 className="text-xl font-serif font-bold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex-1">
+                        {event.title}
+                      </h2>
+                      {isUpcoming(event.start_date) && (
+                        <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                          Upcoming
+                        </span>
+                      )}
+                    </div>
                     
                     <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
                       {truncateContent(event.content)}

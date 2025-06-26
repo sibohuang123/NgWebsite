@@ -14,33 +14,32 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light')
 
+  // Initialize theme on mount
   useEffect(() => {
-    // Check for saved theme preference or default to system preference
-    const savedTheme = localStorage.getItem('theme') as Theme | null
-    
-    if (savedTheme) {
-      setTheme(savedTheme)
-    } else {
-      // Auto-detect based on time of day
-      const hour = new Date().getHours()
-      const isDark = hour >= 19 || hour < 6 // Dark theme from 7 PM to 6 AM
-      setTheme(isDark ? 'dark' : 'light')
-    }
+    const savedTheme = localStorage.getItem('theme')
+    const initialTheme = savedTheme === 'dark' ? 'dark' : 'light'
+    setTheme(initialTheme)
+    applyTheme(initialTheme)
   }, [])
 
-  useEffect(() => {
-    // Apply theme to document
-    const root = document.documentElement
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-    localStorage.setItem('theme', theme)
-  }, [theme])
+  const applyTheme = (newTheme: Theme) => {
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(newTheme)
+  }
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    console.log('Toggling theme from', theme, 'to', newTheme)
+    setTheme(newTheme)
+    localStorage.setItem('theme', newTheme)
+    applyTheme(newTheme)
+    
+    // Debug: Check if class is applied
+    setTimeout(() => {
+      console.log('HTML classes:', document.documentElement.className)
+      console.log('Computed background:', window.getComputedStyle(document.body).backgroundColor)
+    }, 100)
   }
 
   return (
