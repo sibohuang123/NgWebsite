@@ -12,6 +12,7 @@ export default function EventsPage() {
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEvents()
@@ -28,17 +29,25 @@ export default function EventsPage() {
 
   async function fetchEvents() {
     try {
+      setError(null)
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('is_draft', false)
         .order('start_date', { ascending: true })
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       setEvents(data || [])
       setFilteredEvents(data || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching events:', error)
+      if (error.code === '42P01') {
+        setError('Database tables not found. Please run the database setup script in Supabase.')
+      } else {
+        setError('Failed to load events. Please try again later.')
+      }
     } finally {
       setLoading(false)
     }
@@ -111,8 +120,27 @@ export default function EventsPage() {
             </div>
           </div>
 
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-8">
+              <p className="text-red-700 dark:text-red-400">{error}</p>
+              {error.includes('Database tables not found') && (
+                <div className="mt-4 text-sm text-red-600 dark:text-red-300">
+                  <p className="font-semibold mb-2">To set up the database:</p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>Go to your Supabase project dashboard</li>
+                    <li>Navigate to the SQL Editor</li>
+                    <li>Copy and run the contents of <code className="bg-red-100 dark:bg-red-900/50 px-1 rounded">supabase/schema.sql</code></li>
+                    <li>Optionally run <code className="bg-red-100 dark:bg-red-900/50 px-1 rounded">supabase/demo-content.sql</code> for demo data</li>
+                  </ol>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Events Grid */}
-          {loading ? (
+          {!error && (
+            loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
             </div>
@@ -169,6 +197,7 @@ export default function EventsPage() {
                 </motion.article>
               ))}
             </div>
+            )
           )}
         </motion.div>
       </div>

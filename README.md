@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NeuroGeneration Official Website
+
+The official website for the NG teens organization, built with Next.js, TypeScript, Tailwind CSS, Framer Motion, and Supabase.
+
+## Features
+
+- 📝 Educational posts with Markdown and LaTeX support
+- 📅 Event management with date/time tracking
+- 💬 Comments system for community engagement
+- 🎨 Beautiful purple-themed design with dark/light mode
+- 🔐 Admin dashboard for content management
+- 📊 Analytics tracking for posts and events
+- 🎯 SEO optimized with responsive design
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
+- **Animations**: Framer Motion
+- **Database**: Supabase (PostgreSQL)
+- **Content**: Markdown with LaTeX support (KaTeX)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- Yarn package manager
+- Supabase account
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/sibohuang123/NgWebsite.git
+cd NgWebsite
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+yarn install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.local.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env.local` with your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## Learn More
+4. Set up the database:
+   - Follow the instructions in [DATABASE_SETUP.md](DATABASE_SETUP.md)
+   - Or see [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for detailed Supabase setup
 
-To learn more about Next.js, take a look at the following resources:
+5. Run the development server:
+```bash
+yarn dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to see the website.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/              # Next.js App Router pages
+├── components/       # Reusable React components
+├── lib/             # Utilities and configurations
+├── types/           # TypeScript type definitions
+└── supabase/        # Database schema and demo data
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Admin Access
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Access the admin panel at `/admin` with password: `ng-admin-2024`
+
+**Note**: For production, implement proper authentication using Supabase Auth.
+
+## Available Scripts
+
+```bash
+yarn dev        # Start development server
+yarn build      # Build for production
+yarn start      # Start production server
+yarn lint       # Run ESLint
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
