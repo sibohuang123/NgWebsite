@@ -1,0 +1,22 @@
+[build]
+  command = "yarn build"
+  publish = ".next"
+
+[build.environment]
+  NEXT_SHARP_PATH = "/tmp/node_modules/sharp"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
