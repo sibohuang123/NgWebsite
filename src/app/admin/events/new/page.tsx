@@ -42,7 +42,7 @@ export default function NewEventPage() {
       // Format duration as PostgreSQL interval
       const duration = `${event.duration_hours}:${event.duration_minutes.toString().padStart(2, '0')}:00`
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('events')
         .insert({
           title: event.title,

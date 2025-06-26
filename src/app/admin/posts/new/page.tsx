@@ -32,7 +32,7 @@ export default function NewPostPage() {
 
     setSaving(true)
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('posts')
         .insert({
           title: post.title,
