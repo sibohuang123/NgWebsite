@@ -172,9 +172,6 @@ export default function EventDetailPage() {
     }
   }
 
-  const isUpcoming = (dateString: string) => {
-    return new Date(dateString) > new Date()
-  }
   
   const getEventStatus = (startDate: string, endDate: string) => {
     const now = new Date()
