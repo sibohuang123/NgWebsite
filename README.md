@@ -1,6 +1,6 @@
 # NeuroGeneration Official Website
 
-The official website for the NG teens organization, built with Next.js, TypeScript, Tailwind CSS, Framer Motion, and Supabase.
+The official website for NeuroGeneration (NG), a teen-led organization focused on neuroscience and psychology education. Built with Next.js, TypeScript, Tailwind CSS, Framer Motion, and Supabase.
 
 ## Features
 
@@ -11,6 +11,9 @@ The official website for the NG teens organization, built with Next.js, TypeScri
 - 🔐 Admin dashboard for content management
 - 📊 Analytics tracking for posts and events
 - 🎯 SEO optimized with responsive design
+- 🌐 Social media integration (RedNote/Xiaohongshu, WeChat, Instagram, Twitter)
+- 🧠 Focus on neuroscience and psychology content
+- 📱 Community database for resource sharing
 
 ## Tech Stack
 
@@ -67,6 +70,10 @@ Open [http://localhost:3000](http://localhost:3000) to see the website.
 ```
 src/
 ├── app/              # Next.js App Router pages
+│   ├── posts/       # Blog posts
+│   ├── events/      # Event pages
+│   ├── admin/       # Admin dashboard
+│   └── community-database/  # Community resources
 ├── components/       # Reusable React components
 ├── lib/             # Utilities and configurations
 ├── types/           # TypeScript type definitions
@@ -87,6 +94,13 @@ yarn build      # Build for production
 yarn start      # Start production server
 yarn lint       # Run ESLint
 ```
+
+## Recent Updates
+
+- Added psychology focus alongside neuroscience throughout the website
+- Integrated social media logos for RedNote/Xiaohongshu, WeChat, Instagram, and Twitter
+- Improved footer design with 3-column layout and quick links
+- Enhanced community database section for resource sharing
 
 ## Contributing
 
