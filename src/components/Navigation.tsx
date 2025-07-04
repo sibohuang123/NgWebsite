@@ -13,6 +13,7 @@ const navItems = [
   { href: '/about', label: 'About' },
   { href: '/posts', label: 'Posts' },
   { href: '/events', label: 'Events' },
+  { href: '/community-database', label: 'Community Database' },
   { href: '/admin', label: 'Admin' },
 ]
 
@@ -50,16 +51,7 @@ export default function Navigation() {
                   >
                     {item.label}
                     {isActive && (
-                      <motion.div
-                        layoutId="navbar-indicator"
-                        className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-purple-600 dark:bg-purple-400"
-                        initial={false}
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 30,
-                        }}
-                      />
+                      <div className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-purple-600 dark:bg-purple-400" />
                     )}
                   </Link>
                 )
@@ -76,7 +68,7 @@ export default function Navigation() {
                   key={theme}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
                 >
                   {theme === 'light' ? (
                     <MoonIcon className="w-5 h-5 text-gray-700 dark:text-gray-300" />

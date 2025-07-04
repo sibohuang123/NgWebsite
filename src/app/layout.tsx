@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/lib/theme";
 import { AuthProvider } from "@/lib/auth";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import ClientErrorHandler from "@/components/ClientErrorHandler";
 
 export const metadata: Metadata = {
   title: "NeuroGeneration - Official Website",
@@ -32,17 +34,20 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <AuthProvider>
-          <ThemeProvider>
-            <div className="min-h-screen flex flex-col">
-              <Navigation />
-              <main className="flex-grow">
-                {children}
-              </main>
-              <Footer />
-            </div>
-          </ThemeProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <ThemeProvider>
+              <ClientErrorHandler />
+              <div className="min-h-screen flex flex-col">
+                <Navigation />
+                <main className="flex-grow">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </ThemeProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
