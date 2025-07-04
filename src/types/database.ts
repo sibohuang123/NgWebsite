@@ -18,6 +18,7 @@ export interface Event {
   start_date: string
   duration: string
   end_date: string
+  location?: string
   is_draft: boolean
   click_count: number
   created_at: string
@@ -30,5 +31,6 @@ export interface Comment {
   event_id: string | null
   author_name: string
   content: string
+  is_approved?: boolean
   created_at: string
 }

@@ -27,7 +27,14 @@ export default function CommentsManagementPage() {
       router.push('/admin')
       return
     }
-    fetchComments()
+    const loadData = async () => {
+      try {
+        await fetchComments()
+      } catch (error) {
+        console.error('Error in useEffect:', error)
+      }
+    }
+    loadData()
   }, [isAdmin, router])
 
   async function fetchComments() {

@@ -52,11 +52,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false
   }
 
-  const logout = () => {
-    setIsAdmin(false)
-    localStorage.removeItem('isAdmin')
-    sessionStorage.removeItem('adminPassword')
-    router.push('/')
+  const logout = async () => {
+    try {
+      setIsAdmin(false)
+      localStorage.removeItem('isAdmin')
+      sessionStorage.removeItem('adminPassword')
+      await router.push('/')
+    } catch (error) {
+      console.error('Error during logout:', error)
+    }
   }
 
   return (

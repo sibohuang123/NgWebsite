@@ -14,9 +14,9 @@ export default function BrainLogo({ className = "w-8 h-8", animated = true }: Br
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        whileHover={{ opacity: 0.8 }}
+        whileTap={{ opacity: 0.6 }}
       >
         <Brain className={className} />
       </motion.div>
