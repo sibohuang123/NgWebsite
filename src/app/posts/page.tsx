@@ -15,7 +15,14 @@ export default function PostsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchPosts()
+    const loadData = async () => {
+      try {
+        await fetchPosts()
+      } catch (error) {
+        console.error('Error in useEffect:', error)
+      }
+    }
+    loadData()
   }, [])
 
   useEffect(() => {
@@ -93,8 +100,24 @@ export default function PostsPage() {
   }
 
   const truncateContent = (content: string, maxLength: number = 150) => {
-    if (content.length <= maxLength) return content
-    return content.substring(0, maxLength) + '...'
+    // Remove markdown formatting for preview
+    const plainText = content
+      .replace(/#{1,6}\s/g, '') // Remove headers
+      .replace(/\*\*|__|\*|_/g, '') // Remove bold/italic
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+      .replace(/`{1,3}[^`]*`{1,3}/g, '') // Remove code
+      .replace(/\n+/g, ' ') // Replace newlines with spaces
+      .trim()
+    
+    if (plainText.length <= maxLength) return plainText
+    return plainText.substring(0, maxLength).trim() + '...'
+  }
+  
+  const calculateReadingTime = (content: string) => {
+    const wordsPerMinute = 200
+    const words = content.split(/\s+/).length
+    const minutes = Math.ceil(words / wordsPerMinute)
+    return minutes
   }
 
   return (
@@ -103,11 +126,16 @@ export default function PostsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
-            Posts
-          </h1>
+          <div className="text-center mb-12">
+            <h1 className="text-5xl md:text-6xl font-serif font-bold mb-4 bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
+              Posts
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Explore our collection of articles on neuroscience, psychology, teen health, and cutting-edge research
+            </p>
+          </div>
 
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-12">
@@ -161,29 +189,50 @@ export default function PostsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden"
+                    className="post-card group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md overflow-hidden border border-gray-200 dark:border-gray-700"
                   >
-                    <Link href={`/posts/${post.id}`} className="block p-6">
-                      <h2 className="text-xl font-serif font-bold mb-3 text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    {/* Gradient accent bar */}
+                    <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-700 dark:from-purple-400 dark:to-purple-600" />
+                    
+                    <Link href={`/posts/${post.id}`} className="block p-8">
+                      {/* Tag */}
+                      {post.tag && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-4 text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+                          <TagIcon className="w-3 h-3" />
+                          <span>{post.tag}</span>
+                        </div>
+                      )}
+                      
+                      {/* Title */}
+                      <h2 className="text-2xl font-serif font-bold mb-3 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2">
                         {post.title}
                       </h2>
                       
-                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-                        {truncateContent(post.content)}
+                      {/* Content preview */}
+                      <p className="text-gray-600 dark:text-gray-300 mb-5 line-clamp-3 leading-relaxed">
+                        {truncateContent(post.content, 180)}
                       </p>
                       
-                      <div className="flex items-center justify-between text-sm">
+                      {/* Footer */}
+                      <div className="flex items-center justify-between text-sm pt-4 border-t border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-4">
-                          {post.tag && (
-                            <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
-                              <TagIcon className="w-4 h-4" />
-                              <span>{post.tag}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
                             <CalendarIcon className="w-4 h-4" />
                             <span>{formatDate(post.published_date)}</span>
                           </div>
+                          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{calculateReadingTime(post.content)} min read</span>
+                          </div>
+                        </div>
+                        
+                        {/* Read more arrow */}
+                        <div className="text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
                         </div>
                       </div>
                     </Link>

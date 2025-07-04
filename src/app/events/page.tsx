@@ -15,7 +15,14 @@ export default function EventsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchEvents()
+    const loadData = async () => {
+      try {
+        await fetchEvents()
+      } catch (error) {
+        console.error('Error in useEffect:', error)
+      }
+    }
+    loadData()
   }, [])
 
   useEffect(() => {
@@ -121,8 +128,35 @@ export default function EventsPage() {
   }
 
   const truncateContent = (content: string, maxLength: number = 150) => {
-    if (content.length <= maxLength) return content
-    return content.substring(0, maxLength) + '...'
+    // Remove markdown formatting for preview
+    const plainText = content
+      .replace(/#{1,6}\s/g, '') // Remove headers
+      .replace(/\*\*|__|\*|_/g, '') // Remove bold/italic
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+      .replace(/`{1,3}[^`]*`{1,3}/g, '') // Remove code
+      .replace(/\n+/g, ' ') // Replace newlines with spaces
+      .trim()
+    
+    if (plainText.length <= maxLength) return plainText
+    return plainText.substring(0, maxLength).trim() + '...'
+  }
+  
+  const getEventStatus = (startDate: string, endDate: string) => {
+    const now = new Date()
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    
+    if (now < start) {
+      const daysUntil = Math.ceil((start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      if (daysUntil === 0) return { status: 'today', label: 'Today' }
+      if (daysUntil === 1) return { status: 'tomorrow', label: 'Tomorrow' }
+      if (daysUntil <= 7) return { status: 'upcoming', label: `In ${daysUntil} days` }
+      return { status: 'upcoming', label: 'Upcoming' }
+    } else if (now >= start && now <= end) {
+      return { status: 'ongoing', label: 'Happening Now' }
+    } else {
+      return { status: 'past', label: 'Past Event' }
+    }
   }
 
   return (
@@ -131,11 +165,16 @@ export default function EventsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
-            Events
-          </h1>
+          <div className="text-center mb-12">
+            <h1 className="text-5xl md:text-6xl font-serif font-bold mb-4 bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
+              Events
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Join our workshops, seminars, and hands-on activities designed to deepen your understanding of neuroscience and psychology
+            </p>
+          </div>
 
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-12">
@@ -183,51 +222,97 @@ export default function EventsPage() {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {filteredEvents.map((event, index) => (
-                <motion.article
-                  key={event.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden relative"
-                >
-                  <Link href={`/events/${event.id}`} className="block p-6">
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <h2 className="text-xl font-serif font-bold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex-1">
-                        {event.title}
-                      </h2>
-                      {isUpcoming(event.start_date) && (
-                        <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
-                          Upcoming
-                        </span>
-                      )}
+              {filteredEvents.map((event, index) => {
+                const eventStatus = getEventStatus(event.start_date, event.end_date)
+                return (
+                  <motion.article
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="post-card group bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 relative"
+                  >
+                    {/* Status ribbon */}
+                    <div className={`absolute top-4 right-4 z-10 px-3 py-1 rounded-full text-xs font-semibold ${
+                      eventStatus.status === 'ongoing' 
+                        ? 'bg-green-500 text-white'
+                        : eventStatus.status === 'today' || eventStatus.status === 'tomorrow'
+                        ? 'bg-purple-600 text-white'
+                        : eventStatus.status === 'upcoming'
+                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }`}>
+                      {eventStatus.label}
                     </div>
                     
-                    <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-                      {truncateContent(event.content)}
-                    </p>
+                    {/* Gradient accent bar */}
+                    <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-700 dark:from-purple-400 dark:to-purple-600" />
                     
-                    <div className="space-y-2">
+                    <Link href={`/events/${event.id}`} className="block p-8">
+                      {/* Tag */}
                       {event.tag && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <TagIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                          <span className="text-purple-600 dark:text-purple-400">{event.tag}</span>
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-4 text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+                          <TagIcon className="w-3 h-3" />
+                          <span>{event.tag}</span>
                         </div>
                       )}
                       
-                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                        <CalendarIcon className="w-4 h-4" />
-                        <span>{formatDate(event.start_date)} at {formatTime(event.start_date)}</span>
+                      {/* Title */}
+                      <h2 className="text-2xl font-serif font-bold mb-3 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2">
+                        {event.title}
+                      </h2>
+                      
+                      {/* Content preview */}
+                      <p className="text-gray-600 dark:text-gray-300 mb-5 line-clamp-3 leading-relaxed">
+                        {truncateContent(event.content, 180)}
+                      </p>
+                      
+                      {/* Event details */}
+                      <div className="space-y-3 mb-5">
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <CalendarIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <span className="font-medium">{formatDate(event.start_date)}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <ClockIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <span>{formatTime(event.start_date)} • {formatDuration(event.duration)}</span>
+                        </div>
+                        
+                        {event.location && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>{event.location}</span>
+                          </div>
+                        )}
                       </div>
                       
-                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                        <ClockIcon className="w-4 h-4" />
-                        <span>Duration: {formatDuration(event.duration)}</span>
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-1.5">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <span>{event.click_count} views</span>
+                          </div>
+                        </div>
+                        
+                        {/* Register/Learn more arrow */}
+                        <div className="text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </motion.article>
-              ))}
+                    </Link>
+                  </motion.article>
+                )
+              })}
             </div>
             )
           )}
