@@ -17,6 +17,13 @@ interface HistoryState {
   cursorPosition: number
 }
 
+interface ToolbarButton {
+  label: string
+  action: () => void
+  title: string
+  disabled?: boolean
+}
+
 export default function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorProps) {
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write')
   const [showHelp, setShowHelp] = useState(false)
@@ -187,7 +194,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
     }
   }
 
-  const toolbarGroups = [
+  const toolbarGroups: { name: string; buttons: ToolbarButton[] }[] = [
     {
       name: 'history',
       buttons: [
@@ -326,7 +333,7 @@ export default function MarkdownEditor({ value, onChange, placeholder }: Markdow
                       type="button"
                       onClick={button.action}
                       title={button.title}
-                      disabled={button.disabled}
+                      disabled={button.disabled || false}
                       className={`px-2 py-1 text-sm font-medium rounded transition-colors ${
                         button.disabled
                           ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
