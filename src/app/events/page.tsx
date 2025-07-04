@@ -123,9 +123,6 @@ export default function EventsPage() {
     }
   }
 
-  const isUpcoming = (dateString: string) => {
-    return new Date(dateString) > new Date()
-  }
 
   const truncateContent = (content: string, maxLength: number = 150) => {
     // Remove markdown formatting for preview

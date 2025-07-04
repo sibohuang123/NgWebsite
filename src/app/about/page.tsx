@@ -66,7 +66,7 @@ export default function AboutPage() {
               {['mission', 'current', 'philosophy'].map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab as any)}
+                  onClick={() => setActiveTab(tab as 'mission' | 'current' | 'philosophy')}
                   className={`px-6 py-3 font-medium transition-colors first:rounded-l-lg last:rounded-r-lg ${
                     activeTab === tab
                       ? 'bg-purple-600 text-white'
@@ -157,7 +157,7 @@ export default function AboutPage() {
               <div className="max-w-4xl mx-auto text-center">
                 <div className="bg-purple-600 dark:bg-purple-700 rounded-2xl p-12 text-white">
                   <h3 className="text-3xl font-serif font-bold mb-6">
-                    "Mind Matters, Brain Connects."
+                    &ldquo;Mind Matters, Brain Connects.&rdquo;
                   </h3>
                   <p className="text-xl leading-relaxed">
                     Focusing on mental health, grounded in neuroscience and psychology, we aim to explore infinite possibilities of mind and brain!
